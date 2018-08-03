@@ -1,4 +1,0 @@
-theme           tree
-css-class       smartindex-tree-theme
-renderer-class  TreeRenderer
-renderer-file   TreeRenderer.php

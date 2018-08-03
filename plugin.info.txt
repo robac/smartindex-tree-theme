@@ -1,0 +1,7 @@
+base   smartindextree
+author Robert Poch
+email  robert@poch.cz
+date   2018-08-03
+name   smartindextree plugin
+desc   tree theme for smartindex plugin
+url    https://github.com/robac/smartindex-tree-theme

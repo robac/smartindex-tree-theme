@@ -4,18 +4,13 @@ use Smartindex\Configuration\IndexConfiguration;
 use Smartindex\Indexer\DefaultIndexer;
 use Smartindex\Utils\HtmlHelper;
 use Smartindex\Utils\IndexTools;
+use Smartindex\Renderer\iIndexRenderer;
+use Smartindex\Renderer\iRenderer;
+use Smartindex\Indexer\iIndexer;
 
-class TreeRenderer implements iIndexRenderer {
-    const CLASS_OPEN = "open";
-    const CLASS_CLOSED = "closed";
-    const CLASS_NAMESPACE = "namespace";
-    const CLASS_PAGE = "page";
-    
-    private $useWrapper = true;
-    private $wrapperClasses = array();
-    private $wrapperId;
-    
+class TreeIndexRenderer implements iIndexRenderer {
     private $config;
+    private $index;
     
     private $hasFiles = array();
 
@@ -23,43 +18,22 @@ class TreeRenderer implements iIndexRenderer {
         $this->config = $config;
     }
     
-    public function setWrapper($useWrapper, $id = NULL) {
-        $this->useWrapper = $useWrapper;
-        
-        $this->wrapperClasses[] = IndexConfiguration::TREE_CLASS;
-        $this->wrapperClasses[] = $this->config->cssClass;
-        if ($this->config->highlite) {
-            $this->wrapperClasses[] = IndexConfiguration::HIGHLIGHT_CLASS;
-        }
-        
-        $this->wrapperId = $id;
+    public function render(&$document) {
+        $indexer = new DefaultIndexer($this->config);
+        $this->index = $indexer->getIndex();
+
+        $this->buildStructure($this->config->getAttribute('namespace'), $document, 1);
     }
     
-    public function render($data, &$document) {
-        if ($this->useWrapper) {
-            $document .= "<div".HtmlHelper::createIdClassesPart($this->wrapperId, $this->wrapperClasses).">";
-        }
+    private function buildStructure($namespace, &$document, $level) {
+        if ( ! array_key_exists($namespace, $this->index))
+            return "";
         
-        //$document .= HtmlHelper::createHiddenInput("{'name' : 'John'}", "neco");
-       
-        $this->basicData = $data;
-        $this->buildStructure($data, $this->config->namespace, $document, 1);
-        
-        if ($this->useWrapper) {
-            $document .= "</div>";
-        }
-    }
-    
-    private function buildStructure($data, $namespace, &$document, $level) {
-        if (!array_key_exists($namespace, $data))
-                return "";
-        
-        
-        $this->hasFiles[$level] = !empty($data[$namespace][iIndexer::KEY_PAGES]);
+        $this->hasFiles[$level] = !empty($this->index[$namespace][iIndexer::KEY_PAGES]);
         
         $document .= "<ul>";
         
-        foreach($data[$namespace][iIndexer::KEY_DIRS] as $ns)  {
+        foreach($this->index[$namespace][iIndexer::KEY_DIRS] as $ns)  {
             $classes = array(self::CLASS_NAMESPACE);
             if (($this->config->openDepth >= $level) || IndexTools::isPathPart($this->config->followPath, IndexTools::constructPageName($namespace, $ns))) {
                 $classes[] = self::CLASS_OPEN;
@@ -77,12 +51,12 @@ class TreeRenderer implements iIndexRenderer {
                         .HtmlHelper::createSitemapLink(IndexTools::constructPageName($namespace, $ns), $ns)
                         ."</div>";
             
-            $this->buildStructure($data, IndexTools::constructPageName($namespace, $ns), $document, $level+1);
+            $this->buildStructure($this->index, IndexTools::constructPageName($namespace, $ns), $document, $level+1);
             $document .= "</li>";
         }
         
         
-        foreach($data[$namespace][iIndexer::KEY_PAGES] as $page) {
+        foreach($this->index[$namespace][iIndexer::KEY_PAGES] as $page) {
             $heading = p_get_first_heading(IndexTools::constructPageName($namespace, $page), false);
             if ($heading == "")
                 $heading = $page;
