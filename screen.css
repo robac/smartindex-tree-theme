@@ -1,0 +1,83 @@
+.smartindex-tree-theme ul
+{
+    line-height: 18px;
+    font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+.smartindex-tree-theme li > div > a:active:hover:link:visited
+{
+    color: rgb(51, 51, 51) !important;
+    text-decoration: none !important;
+}
+
+.smartindex-tree-theme span
+{
+    float: left;
+    width:18px; 
+    height:18px;
+    display: inline-block;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
+.smartindex-tree-theme li.open > div > span.folder
+{
+    background: url("img/folderopen.gif");
+}
+
+.smartindex-tree-theme li.closed > div > span.folder
+{
+    background: url("img/folder.gif");
+}
+
+.smartindex-tree-theme li.waiting > div > span.folder
+{
+    background-image: url("img/ajax-loader.gif");
+    background-size: 10px 10px;
+}
+
+
+.smartindex-tree-theme span.line
+{
+    background: url("img/line.gif");
+}
+
+.smartindex-tree-theme span.noline
+{
+}
+
+.smartindex-tree-theme span.file
+{
+    background: url("img/page.gif");
+}
+
+.smartindex-tree-theme li.closed > div > span.coll
+{
+    background: url("img/plus.gif");
+}
+
+.smartindex-tree-theme li.open > div > span.coll
+{
+    background: url("img/minus.gif");
+}
+
+.smartindex-tree-theme span.cross
+{
+    background: url("img/join.gif");
+}
+
+.smartindex-tree-theme li:last-child > div > span.cross
+{
+    background: url("img/joinbottom.gif");
+}
+
+.smartindex-tree-theme li.closed:last-child > div > span.coll
+{
+    background: url("img/plusbottom.gif");
+}
+
+.smartindex-tree-theme li.open:last-child > div > span.coll
+{
+    background: url("img/minusbottom.gif");
+}
