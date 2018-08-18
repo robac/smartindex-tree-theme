@@ -21,7 +21,7 @@ class action_plugin_smartindextree extends DokuWiki_Action_Plugin {
      * @return void
      */
     public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('PLUGIN_SMARTINDEX_GET_THEME', 'BEFORE', $this, 'handle_get_theme');
+        $controller->register_hook('PLUGIN_SMARTINDEX_GET_THEME_TREE', 'BEFORE', $this, 'handle_get_theme');
     }
 
     public function handle_get_theme(Doku_Event &$event, $param) {

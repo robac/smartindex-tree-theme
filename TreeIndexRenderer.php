@@ -1,12 +1,12 @@
 <?php
 
 use Smartindex\Configuration\IndexConfiguration;
-use Smartindex\Indexer\DefaultIndexer;
+use Smartindex\Indexer\DefaultIndexBuilder;
 use Smartindex\Utils\HtmlHelper;
 use Smartindex\Utils\IndexTools;
 use Smartindex\Renderer\iIndexRenderer;
 use Smartindex\Renderer\iRenderer;
-use Smartindex\Indexer\iIndexer;
+use Smartindex\Indexer\iIndexBuilder;
 
 class TreeIndexRenderer implements iIndexRenderer {
     private $config;
@@ -19,7 +19,7 @@ class TreeIndexRenderer implements iIndexRenderer {
     }
     
     public function render(&$document) {
-        $indexer = new DefaultIndexer($this->config);
+        $indexer = new DefaultIndexBuilder($this->config);
         $this->index = $indexer->getIndex();
 
         $this->buildStructure($this->config->getAttribute('namespace'), $document, 1);
@@ -29,13 +29,13 @@ class TreeIndexRenderer implements iIndexRenderer {
         if ( ! array_key_exists($namespace, $this->index))
             return "";
         
-        $this->hasFiles[$level] = !empty($this->index[$namespace][iIndexer::KEY_PAGES]);
+        $this->hasFiles[$level] = !empty($this->index[$namespace][iIndexBuilder::KEY_PAGES]);
         
         $document .= "<ul>";
         
-        foreach($this->index[$namespace][iIndexer::KEY_DIRS] as $ns)  {
+        foreach($this->index[$namespace][iIndexBuilder::KEY_DIRS] as $ns)  {
             $classes = array(self::CLASS_NAMESPACE);
-            if (($this->config->openDepth >= $level) || IndexTools::isPathPart($this->config->followPath, IndexTools::constructPageName($namespace, $ns))) {
+            if (($this->config->openDepth >= $level) || IndexTools::isPathPart($this->config->followPath, IndexTools::getPageId($namespace, $ns))) {
                 $classes[] = self::CLASS_OPEN;
             } else {
                 $classes[] = self::CLASS_CLOSED;
@@ -48,16 +48,16 @@ class TreeIndexRenderer implements iIndexRenderer {
             }
             
             $document .= "<span class=\"coll\"></span><span class=\"folder\"></span>"
-                        .HtmlHelper::createSitemapLink(IndexTools::constructPageName($namespace, $ns), $ns)
+                        .HtmlHelper::createSitemapLink(IndexTools::getPageId($namespace, $ns), $ns)
                         ."</div>";
             
-            $this->buildStructure($this->index, IndexTools::constructPageName($namespace, $ns), $document, $level+1);
+            $this->buildStructure($this->index, IndexTools::getPageId($namespace, $ns), $document, $level+1);
             $document .= "</li>";
         }
         
         
-        foreach($this->index[$namespace][iIndexer::KEY_PAGES] as $page) {
-            $heading = p_get_first_heading(IndexTools::constructPageName($namespace, $page), false);
+        foreach($this->index[$namespace][iIndexBuilder::KEY_PAGES] as $page) {
+            $heading = p_get_first_heading(IndexTools::getPageId($namespace, $page), false);
             if ($heading == "")
                 $heading = $page;
             $document .= "<li".HtmlHelper::createIdClassesPart(NULL, array(self::CLASS_PAGE))."><div>";
@@ -67,7 +67,7 @@ class TreeIndexRenderer implements iIndexRenderer {
             }
 
             $document .= "<span class=\"cross\"></span><span class=\"file\"></span>"
-                         .HtmlHelper::createInternalLink(IndexTools::constructPageName($namespace, $page), NULL, $heading, NULL, NULL)
+                         .HtmlHelper::createInternalLink(IndexTools::getPageId($namespace, $page), NULL, $heading, NULL, NULL)
                          ."</div ></li>";
         }
         
